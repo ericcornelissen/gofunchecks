@@ -120,8 +120,14 @@ func checkForParamLimit(fileSet *token.FileSet, file *ast.File, paramLimit int) 
 			continue
 		}
 
-		params := decl.Type.Params.List
-		paramCount := len(params)
+		paramCount := 0
+		for _, param := range decl.Type.Params.List {
+			// Multiple parameters with the same type, as in `func(a, b int)` will
+			// appear as a single "param" in the `Params.List`. Therefore, we instead
+			// count the number of `Names` per "param".
+			paramCount += len(param.Names)
+		}
+
 		if paramCount > paramLimit {
 			issue := fmt.Sprintf("%s - too many parameters in %s (%d > %d)",
 				fileSet.Position(decl.Pos()),

@@ -22,9 +22,29 @@ func TestCheckForParamLimit(t *testing.T) {
 			t.Fatal("test failed")
 		}
 
-		issues := checkForParamLimit(file, 2)
+		issues := checkForParamLimit(fileSet, file, 2)
 		if len(issues) != 0 {
-			t.Errorf("Expected no issues (got %d)", len(issues))
+			t.Errorf("Expected zero issues (got %d)", len(issues))
+		}
+	})
+	t.Run("no issues with variadic function", func(t *testing.T) {
+		src := `
+			package foo
+
+			func localFunction(a ...int) int {
+				return a + b + c
+			}
+		`
+
+		fileSet := token.NewFileSet()
+		file, err := parser.ParseFile(fileSet, "", src, 0)
+		if err != nil {
+			t.Fatal("test failed")
+		}
+
+		issues := checkForParamLimit(fileSet, file, 1)
+		if len(issues) != 0 {
+			t.Errorf("Expected zero issue (got %d)", len(issues))
 		}
 	})
 	t.Run("too many distinct parameters", func(t *testing.T) {
@@ -42,7 +62,7 @@ func TestCheckForParamLimit(t *testing.T) {
 			t.Fatal("test failed")
 		}
 
-		issues := checkForParamLimit(file, 1)
+		issues := checkForParamLimit(fileSet, file, 1)
 		if len(issues) != 1 {
 			t.Errorf("Expected one issue (got %d)", len(issues))
 		}
@@ -62,7 +82,27 @@ func TestCheckForParamLimit(t *testing.T) {
 			t.Fatal("test failed")
 		}
 
-		issues := checkForParamLimit(file, 1)
+		issues := checkForParamLimit(fileSet, file, 1)
+		if len(issues) != 1 {
+			t.Errorf("Expected one issue (got %d)", len(issues))
+		}
+	})
+	t.Run("variadic function with too many parameters", func(t *testing.T) {
+		src := `
+			package foo
+
+			func localFunction(a int, b ...int) int {
+				return a + b + c
+			}
+		`
+
+		fileSet := token.NewFileSet()
+		file, err := parser.ParseFile(fileSet, "", src, 0)
+		if err != nil {
+			t.Fatal("test failed")
+		}
+
+		issues := checkForParamLimit(fileSet, file, 1)
 		if len(issues) != 1 {
 			t.Errorf("Expected one issue (got %d)", len(issues))
 		}
