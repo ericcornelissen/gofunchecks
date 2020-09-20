@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	missingArgumentExitCode = iota
+	missingArgumentExitCode = iota + 1
 	setExistStatusExitCode
 	invalidArgumentExitCode
 )
@@ -26,7 +26,11 @@ func main() {
 	args := flag.Args()
 	if len(args) < 1 {
 		printUsage()
-		os.Exit(missingArgumentExitCode)
+		if *flagHelp {
+			os.Exit(0)
+		} else {
+			os.Exit(missingArgumentExitCode)
+		}
 	}
 
 	anyIssues := run(args)
@@ -37,8 +41,6 @@ func main() {
 
 func run(args []string) bool {
 	lintFailed := false
-
-	paramLimit := defaultParamLimit
 	for _, path := range args {
 		root, err := filepath.Abs(path)
 		if err != nil {
@@ -46,7 +48,7 @@ func run(args []string) bool {
 			os.Exit(invalidArgumentExitCode)
 		}
 
-		if walkPath(root, paramLimit) {
+		if walkPath(root, *flagMax) {
 			lintFailed = true
 		}
 	}
@@ -56,6 +58,14 @@ func run(args []string) bool {
 
 func walkPath(root string, paramLimit int) bool {
 	lintFailed := false
+
+	pathLen := len(root)
+	recursive := false
+	if pathLen >= 5 && root[pathLen-3:] == "..." {
+		recursive = true
+		root = root[:pathLen-3]
+	}
+
 	filepath.Walk(root, func(path string, fi os.FileInfo, err error) error {
 		if err != nil {
 			fmt.Printf("Error during filesystem walk: %v\n", err)
@@ -63,11 +73,13 @@ func walkPath(root string, paramLimit int) bool {
 		}
 
 		if fi.IsDir() {
-			if path != root && (filepath.Base(path) == "testdata" ||
+			if path != root && (!recursive ||
+				filepath.Base(path) == "testdata" ||
 				filepath.Base(path) == "vendor" ||
 				filepath.Base(path) == ".git") {
 				return filepath.SkipDir
 			}
+
 			return nil
 		}
 
@@ -97,10 +109,10 @@ func checkFile(path string, paramLimit int) ([]string, error) {
 		return nil, err
 	}
 
-	return checkForParamLimit(file, paramLimit), nil
+	return checkForParamLimit(fileSet, file, paramLimit), nil
 }
 
-func checkForParamLimit(file *ast.File, paramLimit int) []string {
+func checkForParamLimit(fileSet *token.FileSet, file *ast.File, paramLimit int) []string {
 	var issues []string
 	for _, decl := range file.Decls {
 		decl, ok := decl.(*ast.FuncDecl)
@@ -111,7 +123,13 @@ func checkForParamLimit(file *ast.File, paramLimit int) []string {
 		params := decl.Type.Params.List
 		paramCount := len(params)
 		if paramCount > paramLimit {
-			issues = append(issues, fmt.Sprintf("to many parameters in %s, %d > %d", decl.Name, paramCount, paramLimit))
+			issue := fmt.Sprintf("%s - too many parameters in %s (%d > %d)",
+				fileSet.Position(decl.Pos()),
+				decl.Name,
+				paramCount,
+				paramLimit,
+			)
+			issues = append(issues, issue)
 		}
 	}
 

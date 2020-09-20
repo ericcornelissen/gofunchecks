@@ -6,7 +6,13 @@ import (
 )
 
 var (
-	flagIgnore = flag.Int(
+	flagHelp = flag.Bool(
+		"help",
+		false,
+		"Show this help message",
+	)
+
+	flagMax = flag.Int(
 		"max",
 		defaultParamLimit,
 		fmt.Sprintf("Maximum number of function parameters (default: %d)", defaultParamLimit),
