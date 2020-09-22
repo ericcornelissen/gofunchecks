@@ -5,7 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog], and this project adheres to [Semantic
 Versioning].
 
-## [Unreleased]
+## [0.1.2] - 2020-09-22
+
+- Improve program output.
+- Remove `-help` flag.
+
+## [0.1.1] - 2020-09-20
 
 - Fix bug where multiple parameters of the same type where counted as one.
 

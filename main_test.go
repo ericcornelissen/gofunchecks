@@ -19,10 +19,10 @@ func TestCheckForParamLimit(t *testing.T) {
 		fileSet := token.NewFileSet()
 		file, err := parser.ParseFile(fileSet, "", src, 0)
 		if err != nil {
-			t.Fatal("test failed")
+			t.Fatal("Test file could not be parsed")
 		}
 
-		issues := checkForParamLimit(fileSet, file, 2)
+		issues := checkForParamLimit(file, 2)
 		if len(issues) != 0 {
 			t.Errorf("Expected zero issues (got %d)", len(issues))
 		}
@@ -39,10 +39,10 @@ func TestCheckForParamLimit(t *testing.T) {
 		fileSet := token.NewFileSet()
 		file, err := parser.ParseFile(fileSet, "", src, 0)
 		if err != nil {
-			t.Fatal("test failed")
+			t.Fatal("Test file could not be parsed")
 		}
 
-		issues := checkForParamLimit(fileSet, file, 1)
+		issues := checkForParamLimit(file, 1)
 		if len(issues) != 0 {
 			t.Errorf("Expected zero issue (got %d)", len(issues))
 		}
@@ -59,10 +59,10 @@ func TestCheckForParamLimit(t *testing.T) {
 		fileSet := token.NewFileSet()
 		file, err := parser.ParseFile(fileSet, "", src, 0)
 		if err != nil {
-			t.Fatal("test failed")
+			t.Fatal("Test file could not be parsed")
 		}
 
-		issues := checkForParamLimit(fileSet, file, 1)
+		issues := checkForParamLimit(file, 1)
 		if len(issues) != 1 {
 			t.Errorf("Expected one issue (got %d)", len(issues))
 		}
@@ -79,10 +79,10 @@ func TestCheckForParamLimit(t *testing.T) {
 		fileSet := token.NewFileSet()
 		file, err := parser.ParseFile(fileSet, "", src, 0)
 		if err != nil {
-			t.Fatal("test failed")
+			t.Fatal("Test file could not be parsed")
 		}
 
-		issues := checkForParamLimit(fileSet, file, 1)
+		issues := checkForParamLimit(file, 1)
 		if len(issues) != 1 {
 			t.Errorf("Expected one issue (got %d)", len(issues))
 		}
@@ -99,10 +99,10 @@ func TestCheckForParamLimit(t *testing.T) {
 		fileSet := token.NewFileSet()
 		file, err := parser.ParseFile(fileSet, "", src, 0)
 		if err != nil {
-			t.Fatal("test failed")
+			t.Fatal("Test file could not be parsed")
 		}
 
-		issues := checkForParamLimit(fileSet, file, 1)
+		issues := checkForParamLimit(file, 1)
 		if len(issues) != 1 {
 			t.Errorf("Expected one issue (got %d)", len(issues))
 		}

@@ -2,7 +2,7 @@ package main
 
 import "fmt"
 
-const usageDoc = `goparamcount: find functions with too many parameters
+const usageDocTemplate = `goparamcount: find functions with too many parameters
 
 Usage:
 
@@ -10,9 +10,8 @@ Usage:
 
 Flags:
 
-  -help              Show this help message
-  -max               Maximum number of parameters (default: 2)
-  -set_exit_status   Set exit status to 2 if any issues are found
+  -max               Maximum number of parameters (default: %d)
+  -set_exit_status   Set exit status to %d if any issues are found
 
 Examples:
 
@@ -21,6 +20,7 @@ Examples:
   goparamcount -set_exit_status $GOPATH/src/github.com/cockroachdb/cockroach
 `
 
-func printUsage() {
-	fmt.Print(usageDoc)
+func printUsage(p printer) {
+	usageDoc := fmt.Sprintf(usageDocTemplate, defaultParamLimit, setExitStatusExitCode)
+	p.Print(usageDoc)
 }
