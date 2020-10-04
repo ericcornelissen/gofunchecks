@@ -34,6 +34,14 @@ func includes(vs []string, x string) bool {
 	return false
 }
 
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+
+	return b
+}
+
 func printAll(p printer, issues []string) {
 	for _, issue := range issues {
 		p.Print(issue)

@@ -94,3 +94,39 @@ func TestIncludes(t *testing.T) {
 		}
 	})
 }
+
+func TestMin(t *testing.T) {
+	t.Run("a < b", func(t *testing.T) {
+		a, b := 1, 2
+		if !(a < b) {
+			t.Fatal("For this test a must be less than b")
+		}
+
+		result := min(a, b)
+		if result != a {
+			t.Errorf("Unexpected result (got %d)", result)
+		}
+	})
+	t.Run("a > b", func(t *testing.T) {
+		a, b := 2, 1
+		if !(a > b) {
+			t.Fatal("For this test a must be greater than b")
+		}
+
+		result := min(a, b)
+		if result != b {
+			t.Errorf("Unexpected result (got %d)", result)
+		}
+	})
+	t.Run("a == b", func(t *testing.T) {
+		a, b := 2, 2
+		if !(a == b) {
+			t.Fatal("For this test a must be equal to b")
+		}
+
+		result := min(a, b)
+		if result != a {
+			t.Errorf("Unexpected result (got %d)", result)
+		}
+	})
+}

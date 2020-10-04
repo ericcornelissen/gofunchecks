@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"unicode"
 )
 
 type funcdecl struct {
@@ -18,8 +19,9 @@ type funcdecl struct {
 }
 
 type options struct {
-	paramLimit int
-	recursive  bool
+	paramLimitPrivate int
+	paramLimitPublic  int
+	recursive         bool
 }
 
 type printer interface {
@@ -47,6 +49,10 @@ func main() {
 }
 
 func run(paths []string, logger *log.Logger) (anyIssues bool, err error) {
+	if noLimitIsSet() {
+		*flagMax = defaultParamLimit
+	}
+
 	var issues []string
 	for _, path := range paths {
 		absPath, err := filepath.Abs(path)
@@ -64,17 +70,18 @@ func run(paths []string, logger *log.Logger) (anyIssues bool, err error) {
 
 func analyze(path string) (issues []string) {
 	root, recursive := checkRecursive(path)
-	options := options{
-		recursive:  recursive,
-		paramLimit: *flagMax,
+	options := &options{
+		paramLimitPrivate: min(*flagMax, *flagPrivateMax),
+		paramLimitPublic:  min(*flagMax, *flagPublicMax),
+		recursive:         recursive,
 	}
 
-	return analyzeWith(root, &options)
+	return analyzeWith(root, options)
 }
 
 func analyzeWith(path string, options *options) (issues []string) {
 	for _, file := range getFiles(path, options) {
-		fileIssues, err := analyzeFile(file, options.paramLimit)
+		fileIssues, err := analyzeFile(file, options)
 		if err != nil {
 			fileIssues = []string{err.Error()}
 		}
@@ -85,23 +92,23 @@ func analyzeWith(path string, options *options) (issues []string) {
 	return issues
 }
 
-func analyzeFile(path string, paramLimit int) (issues []string, err error) {
+func analyzeFile(path string, options *options) (issues []string, err error) {
 	fileSet := token.NewFileSet()
 	file, err := parser.ParseFile(fileSet, path, nil, 0)
 	if err != nil {
 		return nil, err
 	}
 
-	for _, decl := range checkForParamLimit(file, paramLimit) {
+	for _, decl := range checkForParamLimit(file, options) {
 		issues = append(issues, constructMessage(fileSet, decl))
 	}
 
 	return issues, nil
 }
 
-func checkForParamLimit(file *ast.File, paramLimit int) (issues []*funcdecl) {
+func checkForParamLimit(file *ast.File, options *options) (issues []*funcdecl) {
 	for _, decl := range file.Decls {
-		issue := checkDecl(decl, paramLimit)
+		issue := checkDecl(decl, options)
 		if issue != nil {
 			issues = append(issues, issue)
 		}
@@ -110,10 +117,15 @@ func checkForParamLimit(file *ast.File, paramLimit int) (issues []*funcdecl) {
 	return issues
 }
 
-func checkDecl(d ast.Decl, paramLimit int) *funcdecl {
+func checkDecl(d ast.Decl, options *options) *funcdecl {
 	decl, ok := d.(*ast.FuncDecl)
 	if !ok {
 		return nil
+	}
+
+	paramLimit := options.paramLimitPrivate
+	if isPublicFunc(decl) {
+		paramLimit = options.paramLimitPublic
 	}
 
 	paramCount := getParamCount(decl)
@@ -126,6 +138,11 @@ func checkDecl(d ast.Decl, paramLimit int) *funcdecl {
 		paramCount: paramCount,
 		pos:        decl.Pos(),
 	}
+}
+
+func isPublicFunc(decl *ast.FuncDecl) bool {
+	name := []rune(decl.Name.String())
+	return unicode.IsUpper(name[0])
 }
 
 func getParamCount(decl *ast.FuncDecl) int {
