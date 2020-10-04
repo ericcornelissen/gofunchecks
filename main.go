@@ -49,7 +49,7 @@ func main() {
 }
 
 func run(paths []string, logger *log.Logger) (anyIssues bool, err error) {
-	if noLimitIsSet() {
+	if noLimitIsSet(*flagMax, *flagPrivateMax, *flagPublicMax) {
 		*flagMax = defaultParamLimit
 	}
 

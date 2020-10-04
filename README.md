@@ -1,3 +1,6 @@
+[![GitHub Actions][ci-image]][ci-url]
+[![Go Report Card][grc-image]][grc-url]
+
 # goparamcount
 
 Find functions that have too many parameters.
@@ -36,3 +39,8 @@ private functions using the `-public-max` and `-private-max` flags:
 ```shell
 $ goparamcount -public-max 2 -private-max 4 ./...
 ```
+
+[ci-url]: https://github.com/ericcornelissen/goparamcount/actions
+[ci-image]: https://github.com/ericcornelissen/goparamcount/workflows/Test%20and%20Lint/badge.svg
+[grc-url]: https://goreportcard.com/report/github.com/ericcornelissen/goparamcount
+[grc-image]: https://goreportcard.com/badge/github.com/ericcornelissen/goparamcount

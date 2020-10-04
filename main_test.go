@@ -7,6 +7,49 @@ import (
 	"testing"
 )
 
+func TestAnalyzeFile(t *testing.T) {
+	t.Run("without issues", func(t *testing.T) {
+		options := &options{
+			paramLimitPrivate: 100,
+			paramLimitPublic:  100,
+		}
+
+		issues, err := analyzeFile("./testdata/src/foo.go", options)
+		if err != nil {
+			t.Fatalf("Unexpected error: %s", err)
+		}
+
+		issueCount := len(issues)
+		if issueCount != 0 {
+			t.Errorf("Expected no issues (got %d)", issueCount)
+		}
+	})
+	t.Run("with issues", func(t *testing.T) {
+		options := &options{
+			paramLimitPrivate: 0,
+			paramLimitPublic:  0,
+		}
+
+		issues, err := analyzeFile("./testdata/src/foo.go", options)
+		if err != nil {
+			t.Fatalf("Unexpected error: %s", err)
+		}
+
+		issueCount := len(issues)
+		if issueCount != 2 {
+			t.Errorf("Expected two issues (got %d)", issueCount)
+		}
+	})
+	t.Run("file does not exists", func(t *testing.T) {
+		options := &options{}
+
+		_, err := analyzeFile("this is definitely not a file!", options)
+		if err == nil {
+			t.Error("Expected an error but got none")
+		}
+	})
+}
+
 func TestCheckForParamLimit(t *testing.T) {
 	t.Run("no issues", func(t *testing.T) {
 		options := &options{

@@ -30,8 +30,12 @@ var (
 	)
 )
 
-func noLimitIsSet() bool {
-	return *flagMax == math.MaxInt32 &&
-		*flagPrivateMax == math.MaxInt32 &&
-		*flagPublicMax == math.MaxInt32
+func noLimitIsSet(flags ...int) bool {
+	for _, flag := range flags {
+		if flag != math.MaxInt32 {
+			return false
+		}
+	}
+
+	return true
 }
