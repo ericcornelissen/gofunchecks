@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog], and this project adheres to [Semantic
 Versioning].
 
+## [Unreleased]
+
+- Add `-tests` flag.
+- Fix mistake in usage message (double "goparamcount:" prefix).
+
 ## [0.1.5] - 2020-10-05
 
 - Add `-excludes` flag.

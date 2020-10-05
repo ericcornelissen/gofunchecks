@@ -21,6 +21,7 @@ type funcdecl struct {
 
 type options struct {
 	excludePatterns   []string
+	excludeTests      bool
 	paramLimitPrivate int
 	paramLimitPublic  int
 	recursive         bool
@@ -70,6 +71,7 @@ func run(paths []string, logger *log.Logger) (issues []string, err error) {
 
 	baseOptions := &options{
 		excludePatterns:   excludePatterns,
+		excludeTests:      !(*flagTests),
 		paramLimitPrivate: min(*flagMax, *flagPrivateMax),
 		paramLimitPublic:  min(*flagMax, *flagPublicMax),
 	}

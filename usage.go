@@ -2,7 +2,7 @@ package main
 
 import "fmt"
 
-const usageDocTemplate = `goparamcount: find functions with too many parameters
+const usageDocTemplate = `find functions with too many parameters
 
 Usage:
 
@@ -19,6 +19,7 @@ Flags:
                       if only -public-max is set.
   -excludes         Comma separated list of file patterns to exclude.
   -set_exit_status  Set exit status to %d if any issues are found.
+  -tests            Include test files in analysis.
   -verbose          Enable debug logging.
 
 Examples:

@@ -12,7 +12,6 @@ var (
 		"",
 		"Comma separated list of file patterns to exclude",
 	)
-
 	flagMax = flag.Int(
 		"max",
 		math.MaxInt32,
@@ -28,13 +27,16 @@ var (
 		math.MaxInt32,
 		"Maximum number of parameters for public functions",
 	)
-
 	flagSetExitStatus = flag.Bool(
 		"set_exit_status",
 		false,
 		fmt.Sprintf("Set exit status to %d if any issues are found", setExitStatusExitCode),
 	)
-
+	flagTests = flag.Bool(
+		"tests",
+		false,
+		"Include test files in analysis",
+	)
 	flagVerbose = flag.Bool(
 		"verbose",
 		false,
