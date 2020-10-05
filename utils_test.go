@@ -8,6 +8,27 @@ import (
 	"testing"
 )
 
+func TestCheckPatterns(t *testing.T) {
+	t.Run("no patterns", func(t *testing.T) {
+		err := checkPatterns([]string{})
+		if err != nil {
+			t.Errorf("Unexpected error (got '%s')", err)
+		}
+	})
+	t.Run("no invalid patterns", func(t *testing.T) {
+		err := checkPatterns([]string{"valid pattern"})
+		if err != nil {
+			t.Errorf("Unexpected error (got '%s')", err)
+		}
+	})
+	t.Run("some invalid patterns", func(t *testing.T) {
+		err := checkPatterns([]string{"invalid[pattern"})
+		if err == nil {
+			t.Error("Expected an error but got none")
+		}
+	})
+}
+
 func TestCheckRecursive(t *testing.T) {
 	t.Run("empty string", func(t *testing.T) {
 		originalPath := ""

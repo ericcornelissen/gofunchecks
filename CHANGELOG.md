@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog], and this project adheres to [Semantic
 Versioning].
 
+## [0.1.5] - 2020-10-05
+
+- Add `-excludes` flag.
+- Update default number of parameters allowed to `3` (from `2`).
+
 ## [0.1.4] - 2020-10-05
 
 - Add `-verbose` flag.

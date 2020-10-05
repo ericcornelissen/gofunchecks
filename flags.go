@@ -7,6 +7,12 @@ import (
 )
 
 var (
+	flagExcludes = flag.String(
+		"excludes",
+		"",
+		"Comma separated list of file patterns to exclude",
+	)
+
 	flagMax = flag.Int(
 		"max",
 		math.MaxInt32,

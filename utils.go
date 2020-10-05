@@ -5,9 +5,27 @@ import (
 	"fmt"
 	"go/token"
 	"log"
+	"path/filepath"
+	"strings"
 )
 
 var noopLogger = log.New(bytes.NewBuffer([]byte{}), "", 0)
+
+func checkPatterns(patterns []string) error {
+	var invalidPatterns []string
+	for _, pattern := range patterns {
+		_, err := filepath.Match(pattern, pattern)
+		if err != nil {
+			invalidPatterns = append(invalidPatterns, pattern)
+		}
+	}
+
+	if len(invalidPatterns) > 0 {
+		return fmt.Errorf("'%s'", strings.Join(invalidPatterns, "', '"))
+	}
+
+	return nil
+}
 
 func checkRecursive(path string) (adjustedPath string, recursive bool) {
 	pathLen := len(path)

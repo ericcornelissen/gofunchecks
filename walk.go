@@ -22,7 +22,7 @@ func getFiles(root string, options *options) (paths []string) {
 			return skipDir(path, options.recursive)
 		}
 
-		if skipFile(path) {
+		if skipFile(path, options.excludePatterns) {
 			return nil
 		}
 
@@ -46,13 +46,29 @@ func skipDir(path string, recursive bool) error {
 	return nil
 }
 
-func skipFile(path string) bool {
+func skipFile(path string, excludePatterns []string) bool {
 	if !strings.HasSuffix(path, ".go") {
+		return true
+	}
+
+	if excludeByPattern(path, excludePatterns) {
 		return true
 	}
 
 	if strings.HasSuffix(path, "_test.go") {
 		return true
+	}
+
+	return false
+}
+
+func excludeByPattern(path string, excludePatterns []string) bool {
+	for _, pattern := range excludePatterns {
+		filename := filepath.Base(path)
+		matched, _ := filepath.Match(pattern, filename)
+		if matched {
+			return true
+		}
 	}
 
 	return false

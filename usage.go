@@ -17,6 +17,7 @@ Flags:
   -private-max      Maximum number of parameters for private functions. Defaults
                       to the value of -max. Private functions are not analyzed
                       if only -public-max is set.
+  -excludes         Comma separated list of file patterns to exclude.
   -set_exit_status  Set exit status to %d if any issues are found.
   -verbose          Enable debug logging.
 

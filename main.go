@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"unicode"
 )
 
@@ -19,6 +20,7 @@ type funcdecl struct {
 }
 
 type options struct {
+	excludePatterns   []string
 	paramLimitPrivate int
 	paramLimitPublic  int
 	recursive         bool
@@ -40,47 +42,60 @@ func main() {
 		os.Exit(missingArgumentExitCode)
 	}
 
-	anyIssues, err := run(args, logger)
+	issues, err := run(args, logger)
 	if err != nil {
 		os.Exit(invalidArgumentExitCode)
-	} else if anyIssues && *flagSetExitStatus {
-		os.Exit(setExitStatusExitCode)
-	}
-}
+	} else if len(issues) > 0 {
+		printAll(logger, issues)
 
-func run(paths []string, logger *log.Logger) (anyIssues bool, err error) {
-	var issues []string
-	for _, path := range paths {
-		absPath, err := filepath.Abs(path)
-		if err != nil {
-			return false, fmt.Errorf("invalid path %s", path)
+		if *flagSetExitStatus {
+			os.Exit(setExitStatusExitCode)
 		}
-
-		pathIssues := analyze(absPath, logger)
-		issues = append(issues, pathIssues...)
 	}
-
-	printAll(logger, issues)
-	return len(issues) > 0, nil
 }
 
-func analyze(path string, logger *log.Logger) (issues []string) {
-	if noLimitIsSet(*flagMax, *flagPrivateMax, *flagPublicMax) {
-		*flagMax = defaultParamLimit
-	}
-
-	root, recursive := checkRecursive(path)
-	options := &options{
-		paramLimitPrivate: min(*flagMax, *flagPrivateMax),
-		paramLimitPublic:  min(*flagMax, *flagPublicMax),
-		recursive:         recursive,
-	}
-
+func run(paths []string, logger *log.Logger) (issues []string, err error) {
 	if !(*flagVerbose) {
 		logger = noopLogger
 	}
 
-	return analyzeWith(root, options, logger)
+	if noLimitIsSet(*flagMax, *flagPrivateMax, *flagPublicMax) {
+		*flagMax = defaultParamLimit
+	}
+
+	excludePatterns := strings.Split(*flagExcludes, ",")
+	if err := checkPatterns(excludePatterns); err != nil {
+		logger.Printf("invalid pattern(s): %s", err)
+	}
+
+	baseOptions := &options{
+		excludePatterns:   excludePatterns,
+		paramLimitPrivate: min(*flagMax, *flagPrivateMax),
+		paramLimitPublic:  min(*flagMax, *flagPublicMax),
+	}
+
+	return runWith(paths, baseOptions, logger)
+}
+
+func runWith(
+	paths []string,
+	baseOptions *options,
+	logger *log.Logger,
+) (issues []string, err error) {
+	for _, path := range paths {
+		absPath, err := filepath.Abs(path)
+		if err != nil {
+			return []string{}, fmt.Errorf("invalid path %s", path)
+		}
+
+		root, recursive := checkRecursive(absPath)
+		baseOptions.recursive = recursive
+
+		pathIssues := analyzeWith(root, baseOptions, logger)
+		issues = append(issues, pathIssues...)
+	}
+
+	return issues, nil
 }
 
 func analyzeWith(
