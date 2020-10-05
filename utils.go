@@ -1,9 +1,13 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"go/token"
+	"log"
 )
+
+var noopLogger = log.New(bytes.NewBuffer([]byte{}), "", 0)
 
 func checkRecursive(path string) (adjustedPath string, recursive bool) {
 	pathLen := len(path)

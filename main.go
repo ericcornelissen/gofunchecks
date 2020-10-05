@@ -49,10 +49,6 @@ func main() {
 }
 
 func run(paths []string, logger *log.Logger) (anyIssues bool, err error) {
-	if noLimitIsSet(*flagMax, *flagPrivateMax, *flagPublicMax) {
-		*flagMax = defaultParamLimit
-	}
-
 	var issues []string
 	for _, path := range paths {
 		absPath, err := filepath.Abs(path)
@@ -60,7 +56,7 @@ func run(paths []string, logger *log.Logger) (anyIssues bool, err error) {
 			return false, fmt.Errorf("invalid path %s", path)
 		}
 
-		pathIssues := analyze(absPath)
+		pathIssues := analyze(absPath, logger)
 		issues = append(issues, pathIssues...)
 	}
 
@@ -68,7 +64,11 @@ func run(paths []string, logger *log.Logger) (anyIssues bool, err error) {
 	return len(issues) > 0, nil
 }
 
-func analyze(path string) (issues []string) {
+func analyze(path string, logger *log.Logger) (issues []string) {
+	if noLimitIsSet(*flagMax, *flagPrivateMax, *flagPublicMax) {
+		*flagMax = defaultParamLimit
+	}
+
 	root, recursive := checkRecursive(path)
 	options := &options{
 		paramLimitPrivate: min(*flagMax, *flagPrivateMax),
@@ -76,17 +76,26 @@ func analyze(path string) (issues []string) {
 		recursive:         recursive,
 	}
 
-	return analyzeWith(root, options)
+	if !(*flagVerbose) {
+		logger = noopLogger
+	}
+
+	return analyzeWith(root, options, logger)
 }
 
-func analyzeWith(path string, options *options) (issues []string) {
-	for _, file := range getFiles(path, options) {
-		fileIssues, err := analyzeFile(file, options)
+func analyzeWith(
+	path string,
+	options *options,
+	logger *log.Logger,
+) (issues []string) {
+	for _, filePath := range getFiles(path, options) {
+		logger.Printf("analyzing %s", filePath)
+		fileIssues, err := analyzeFile(filePath, options)
 		if err != nil {
-			fileIssues = []string{err.Error()}
+			logger.Printf("error parsing %s", filePath)
+		} else {
+			issues = append(issues, fileIssues...)
 		}
-
-		issues = append(issues, fileIssues...)
 	}
 
 	return issues

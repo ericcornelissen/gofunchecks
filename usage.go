@@ -18,6 +18,7 @@ Flags:
                       to the value of -max. Private functions are not analyzed
                       if only -public-max is set.
   -set_exit_status  Set exit status to %d if any issues are found.
+  -verbose          Enable debug logging.
 
 Examples:
 

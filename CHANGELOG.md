@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog], and this project adheres to [Semantic
 Versioning].
 
+## [0.1.4] - 2020-10-05
+
+- Add `-verbose` flag.
+
 ## [0.1.3] - 2020-10-04
 
 - Add `-public-max` and `-private-max` flags.

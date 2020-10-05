@@ -28,6 +28,12 @@ var (
 		false,
 		fmt.Sprintf("Set exit status to %d if any issues are found", setExitStatusExitCode),
 	)
+
+	flagVerbose = flag.Bool(
+		"verbose",
+		false,
+		"Enable debug logging",
+	)
 )
 
 func noLimitIsSet(flags ...int) bool {
