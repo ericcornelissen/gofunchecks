@@ -193,6 +193,24 @@ func TestMin(t *testing.T) {
 			t.Errorf("Unexpected result (got %d)", result)
 		}
 	})
+	t.Run("only one value", func(t *testing.T) {
+		v := 4
+		result := min(v)
+		if result != v {
+			t.Errorf("Unexpected result (got %d)", result)
+		}
+	})
+	t.Run("more than two values", func(t *testing.T) {
+		a, b, c := 1, 2, 3
+		if !(a < b) || !(a < c) {
+			t.Fatal("The value of a must be the lowest for this test")
+		}
+
+		result := min(a, b, c)
+		if result != a {
+			t.Errorf("Unexpected result (got %d)", result)
+		}
+	})
 }
 
 func TestPrintAll(t *testing.T) {

@@ -12,11 +12,23 @@ var (
 		"",
 		"Comma separated list of file patterns to exclude",
 	)
+	flagExcludesAlias = flag.String(
+		"e",
+		"",
+		"(alias of -excludes)",
+	)
+
 	flagMax = flag.Int(
 		"max",
 		math.MaxInt32,
 		fmt.Sprintf("Maximum number of parameters (default: %d)", defaultParamLimit),
 	)
+	flagMaxAlias = flag.Int(
+		"m",
+		math.MaxInt32,
+		"(alias of -max)",
+	)
+
 	flagPrivateMax = flag.Int(
 		"private-max",
 		math.MaxInt32,
@@ -27,20 +39,38 @@ var (
 		math.MaxInt32,
 		"Maximum number of parameters for public functions",
 	)
+
 	flagSetExitStatus = flag.Bool(
 		"set_exit_status",
 		false,
 		fmt.Sprintf("Set exit status to %d if any issues are found", setExitStatusExitCode),
 	)
+	flagSetExitStatusAlias = flag.Bool(
+		"S",
+		false,
+		"(alias of -set_exit_status)",
+	)
+
 	flagTests = flag.Bool(
 		"tests",
 		false,
 		"Include test files in analysis",
 	)
+	flagTestsAlias = flag.Bool(
+		"t",
+		false,
+		"(alias of -tests)",
+	)
+
 	flagVerbose = flag.Bool(
 		"verbose",
 		false,
 		"Enable debug logging",
+	)
+	flagVerboseAlias = flag.Bool(
+		"v",
+		false,
+		"(alias of -verbose)",
 	)
 )
 

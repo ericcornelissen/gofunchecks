@@ -56,12 +56,15 @@ func includes(vs []string, x string) bool {
 	return false
 }
 
-func min(a, b int) int {
-	if a < b {
-		return a
+func min(v0 int, vs ...int) int {
+	m := v0
+	for _, c := range vs {
+		if c < m {
+			m = c
+		}
 	}
 
-	return b
+	return m
 }
 
 func printAll(p printer, issues []string) {

@@ -49,21 +49,22 @@ func main() {
 	} else if len(issues) > 0 {
 		printAll(logger, issues)
 
-		if *flagSetExitStatus {
+		if *flagSetExitStatus || *flagSetExitStatusAlias {
 			os.Exit(setExitStatusExitCode)
 		}
 	}
 }
 
 func run(paths []string, logger *log.Logger) (issues []string, err error) {
-	if !(*flagVerbose) {
+	if !(*flagVerbose || *flagVerboseAlias) {
 		logger = noopLogger
 	}
 
-	if noLimitIsSet(*flagMax, *flagPrivateMax, *flagPublicMax) {
+	if noLimitIsSet(*flagMax, *flagMaxAlias, *flagPrivateMax, *flagPublicMax) {
 		*flagMax = defaultParamLimit
 	}
 
+	*flagExcludes += *flagExcludesAlias
 	excludePatterns := strings.Split(*flagExcludes, ",")
 	if err := checkPatterns(excludePatterns); err != nil {
 		logger.Printf("invalid pattern(s): %s", err)
@@ -71,9 +72,9 @@ func run(paths []string, logger *log.Logger) (issues []string, err error) {
 
 	baseOptions := &options{
 		excludePatterns:   excludePatterns,
-		excludeTests:      !(*flagTests),
-		paramLimitPrivate: min(*flagMax, *flagPrivateMax),
-		paramLimitPublic:  min(*flagMax, *flagPublicMax),
+		excludeTests:      !(*flagTests || *flagTestsAlias),
+		paramLimitPrivate: min(*flagMax, *flagMaxAlias, *flagPrivateMax),
+		paramLimitPublic:  min(*flagMax, *flagMaxAlias, *flagPublicMax),
 	}
 
 	return runWith(paths, baseOptions, logger)
