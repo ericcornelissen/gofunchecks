@@ -162,5 +162,9 @@ func checkDecl(d ast.Decl, options *options) *funcdecl {
 }
 
 func getReturnCount(decl *ast.FuncDecl) int {
-	return 0 // TODO: implement functionality to get number of return values
+	if decl.Type.Results != nil {
+		return decl.Type.Results.NumFields()
+	}
+
+	return 0
 }
