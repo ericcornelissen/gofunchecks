@@ -49,8 +49,8 @@ func TestAnalyzeFile(t *testing.T) {
 	})
 }
 
-func TestCheckForReturnLimit(t *testing.T) {
-	t.Run("no issues, below limit", func(t *testing.T) {
+func TestCheckForReturnLimitNoIssues(t *testing.T) {
+	t.Run("below limit", func(t *testing.T) {
 		options := &options{
 			returnLimitPrivate: 2,
 			returnLimitPublic:  2,
@@ -75,7 +75,7 @@ func TestCheckForReturnLimit(t *testing.T) {
 			t.Errorf("Expected zero issues (got %d)", len(issues))
 		}
 	})
-	t.Run("no issues, at limit", func(t *testing.T) {
+	t.Run("at limit", func(t *testing.T) {
 		options := &options{
 			returnLimitPrivate: 1,
 			returnLimitPublic:  1,
@@ -100,6 +100,59 @@ func TestCheckForReturnLimit(t *testing.T) {
 			t.Errorf("Expected zero issue (got %d)", len(issues))
 		}
 	})
+	t.Run("below limit, shared type", func(t *testing.T) {
+		options := &options{
+			returnLimitPrivate: 3,
+			returnLimitPublic:  3,
+		}
+
+		src := `
+			package foo
+
+			func localFunction(a, b int) (c, d int) {
+				return b, a
+			}
+		`
+
+		fileSet := token.NewFileSet()
+		file, err := parser.ParseFile(fileSet, "", src, 0)
+		if err != nil {
+			t.Fatal("Test file could not be parsed")
+		}
+
+		issues := checkForReturnLimit(file, options)
+		if len(issues) != 0 {
+			t.Errorf("Expected zero issues (got %d)", len(issues))
+		}
+	})
+	t.Run("at limit, shared type", func(t *testing.T) {
+		options := &options{
+			returnLimitPrivate: 2,
+			returnLimitPublic:  2,
+		}
+
+		src := `
+			package foo
+
+			func localFunction(a, b int) (c, d int) {
+				return b, a
+			}
+		`
+
+		fileSet := token.NewFileSet()
+		file, err := parser.ParseFile(fileSet, "", src, 0)
+		if err != nil {
+			t.Fatal("Test file could not be parsed")
+		}
+
+		issues := checkForReturnLimit(file, options)
+		if len(issues) != 0 {
+			t.Errorf("Expected zero issue (got %d)", len(issues))
+		}
+	})
+}
+
+func TestCheckForReturnLimit(t *testing.T) {
 	t.Run("too many distinct return values", func(t *testing.T) {
 		options := &options{
 			returnLimitPrivate: 1,
