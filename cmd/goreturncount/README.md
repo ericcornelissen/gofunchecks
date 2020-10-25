@@ -4,7 +4,10 @@ Find functions that have too many return values.
 
 ## Motivation
 
-TODO: write motivation
+Functions with many return values can be difficult to understand and the order
+of the values may be confusing. Also, having many return values can be an
+indication that the function is doing too many things. If you really need to
+return a lot of data it may be a better idea to wrap it in a `struct` anyway.
 
 ## Installation
 
