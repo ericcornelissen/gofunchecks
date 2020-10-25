@@ -1,6 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/ericcornelissen/gofunchecks/internal/utils"
+)
 
 const usageDocTemplate = `find functions with too many parameters
 
@@ -30,7 +34,7 @@ Examples:
   goparamcount -set_exit_status $GOPATH/src/github.com/cockroachdb/cockroach
 `
 
-func printUsage(p printer) {
+func printUsage(p utils.Printer) {
 	usageDoc := fmt.Sprintf(usageDocTemplate, defaultParamLimit, setExitStatusExitCode)
 	p.Print(usageDoc)
 }

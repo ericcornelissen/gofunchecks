@@ -1,28 +1,25 @@
-package main
+package utils
 
 import (
-	"fmt"
-	"go/parser"
-	"go/token"
-	"strings"
+	"go/ast"
 	"testing"
 )
 
 func TestCheckPatterns(t *testing.T) {
 	t.Run("no patterns", func(t *testing.T) {
-		err := checkPatterns([]string{})
+		err := CheckPatterns([]string{})
 		if err != nil {
 			t.Errorf("Unexpected error (got '%s')", err)
 		}
 	})
 	t.Run("no invalid patterns", func(t *testing.T) {
-		err := checkPatterns([]string{"valid pattern"})
+		err := CheckPatterns([]string{"valid pattern"})
 		if err != nil {
 			t.Errorf("Unexpected error (got '%s')", err)
 		}
 	})
 	t.Run("some invalid patterns", func(t *testing.T) {
-		err := checkPatterns([]string{"invalid[pattern"})
+		err := CheckPatterns([]string{"invalid[pattern"})
 		if err == nil {
 			t.Error("Expected an error but got none")
 		}
@@ -32,7 +29,7 @@ func TestCheckPatterns(t *testing.T) {
 func TestCheckRecursive(t *testing.T) {
 	t.Run("empty string", func(t *testing.T) {
 		originalPath := ""
-		adjustedPath, recursive := checkRecursive(originalPath)
+		adjustedPath, recursive := CheckRecursive(originalPath)
 
 		if adjustedPath != originalPath {
 			t.Errorf("Expected adjusted path to equal original path (was '%s')", adjustedPath)
@@ -44,7 +41,7 @@ func TestCheckRecursive(t *testing.T) {
 	})
 	t.Run("short path", func(t *testing.T) {
 		originalPath := "./"
-		adjustedPath, recursive := checkRecursive(originalPath)
+		adjustedPath, recursive := CheckRecursive(originalPath)
 
 		if adjustedPath != originalPath {
 			t.Errorf("Expected adjusted path to equal original path (was '%s')", adjustedPath)
@@ -56,7 +53,7 @@ func TestCheckRecursive(t *testing.T) {
 	})
 	t.Run("long path", func(t *testing.T) {
 		originalPath := "path/to/directory"
-		adjustedPath, recursive := checkRecursive(originalPath)
+		adjustedPath, recursive := CheckRecursive(originalPath)
 
 		if adjustedPath != originalPath {
 			t.Errorf("Expected adjusted path to equal original path (was '%s')", adjustedPath)
@@ -69,7 +66,7 @@ func TestCheckRecursive(t *testing.T) {
 	t.Run("package list wildcard", func(t *testing.T) {
 		originalPath := "./..."
 		expectedPath := "./"
-		adjustedPath, recursive := checkRecursive(originalPath)
+		adjustedPath, recursive := CheckRecursive(originalPath)
 
 		if adjustedPath != expectedPath {
 			t.Errorf("Expected adjusted path to '%s' (was '%s')", expectedPath, adjustedPath)
@@ -81,80 +78,35 @@ func TestCheckRecursive(t *testing.T) {
 	})
 }
 
-func TestConstructMessage(t *testing.T) {
-	src := `
-		package foo
-
-		func localFunction(a, b int) int {
-			return a + b
-		}
-	`
-
-	fileSet := token.NewFileSet()
-	file, err := parser.ParseFile(fileSet, "", src, 0)
-	if err != nil {
-		t.Fatal("Test file could not be parsed")
-	}
-
-	if len(file.Decls) < 1 {
-		t.Fatal("Test file must contains at least one declaration")
-	}
-
-	funcName := "foobar"
-	funcParamCount := 3
-	funcDecl := &funcdecl{
-		name:       funcName,
-		paramCount: funcParamCount,
-		pos:        file.Decls[0].Pos(),
-	}
-
-	result := constructMessage(fileSet, funcDecl)
-	if !strings.Contains(result, funcName) {
-		t.Error("Expected message to contain the function name")
-	}
-
-	if !strings.Contains(result, fmt.Sprintf("%d parameters", funcParamCount)) {
-		t.Error("Expected message to contain the actual parameter count")
-	}
-}
-
-func TestIncludes(t *testing.T) {
-	t.Run("empty slice", func(t *testing.T) {
-		result := includes([]string{}, "foobar")
-		if result == true {
-			t.Error("Expected first result to be false")
+func TestIsPublicFunc(t *testing.T) {
+	t.Run("private function", func(t *testing.T) {
+		decl := &ast.FuncDecl{
+			Name: ast.NewIdent("localFunction"),
 		}
 
-		result = includes([]string{}, "")
+		result := IsPublicFunc(decl)
 		if result == true {
-			t.Error("Expected second result to be false")
+			t.Error("The function declaration is not public")
 		}
 	})
-	t.Run("slice not containing element", func(t *testing.T) {
-		result := includes([]string{"foo"}, "bar")
-		if result == true {
-			t.Error("Expected first result to be false")
+	t.Run("public function", func(t *testing.T) {
+		decl := &ast.FuncDecl{
+			Name: ast.NewIdent("PublicFunction"),
 		}
 
-		result = includes([]string{"foo", "bar"}, "baz")
-		if result == true {
-			t.Error("Expected second result to be false")
+		result := IsPublicFunc(decl)
+		if result == false {
+			t.Error("The function declaration is public")
 		}
 	})
-	t.Run("slice containing element", func(t *testing.T) {
-		result := includes([]string{"foo"}, "foo")
-		if result == false {
-			t.Error("Expected first result to be true")
+	t.Run("unconventional function name", func(t *testing.T) {
+		decl := &ast.FuncDecl{
+			Name: ast.NewIdent("_localFunction"),
 		}
 
-		result = includes([]string{"foo", "bar"}, "foo")
-		if result == false {
-			t.Error("Expected second result to be true")
-		}
-
-		result = includes([]string{"foo", "bar"}, "bar")
-		if result == false {
-			t.Error("Expected second result to be true")
+		result := IsPublicFunc(decl)
+		if result == true {
+			t.Error("The function declaration is not public")
 		}
 	})
 }
@@ -166,7 +118,7 @@ func TestMin(t *testing.T) {
 			t.Fatal("For this test a must be less than b")
 		}
 
-		result := min(a, b)
+		result := Min(a, b)
 		if result != a {
 			t.Errorf("Unexpected result (got %d)", result)
 		}
@@ -177,7 +129,7 @@ func TestMin(t *testing.T) {
 			t.Fatal("For this test a must be greater than b")
 		}
 
-		result := min(a, b)
+		result := Min(a, b)
 		if result != b {
 			t.Errorf("Unexpected result (got %d)", result)
 		}
@@ -188,14 +140,14 @@ func TestMin(t *testing.T) {
 			t.Fatal("For this test a must be equal to b")
 		}
 
-		result := min(a, b)
+		result := Min(a, b)
 		if result != a {
 			t.Errorf("Unexpected result (got %d)", result)
 		}
 	})
 	t.Run("only one value", func(t *testing.T) {
 		v := 4
-		result := min(v)
+		result := Min(v)
 		if result != v {
 			t.Errorf("Unexpected result (got %d)", result)
 		}
@@ -206,7 +158,25 @@ func TestMin(t *testing.T) {
 			t.Fatal("The value of a must be the lowest for this test")
 		}
 
-		result := min(a, b, c)
+		result := Min(a, b, c)
+		if result != a {
+			t.Errorf("Unexpected result (got %d)", result)
+		}
+	})
+	t.Run("only one value", func(t *testing.T) {
+		v := 4
+		result := Min(v)
+		if result != v {
+			t.Errorf("Unexpected result (got %d)", result)
+		}
+	})
+	t.Run("more than two values", func(t *testing.T) {
+		a, b, c := 1, 2, 3
+		if !(a < b) || !(a < c) {
+			t.Fatal("The value of a must be the lowest for this test")
+		}
+
+		result := Min(a, b, c)
 		if result != a {
 			t.Errorf("Unexpected result (got %d)", result)
 		}
@@ -219,7 +189,7 @@ func TestPrintAll(t *testing.T) {
 		p := mockPrinter{callCount: &callCount}
 
 		noIssues := []string{}
-		printAll(p, noIssues)
+		PrintAll(p, noIssues)
 
 		if callCount > 0 {
 			t.Errorf("Expected printer not to be called (called %d times)", callCount)
@@ -234,7 +204,7 @@ func TestPrintAll(t *testing.T) {
 		}
 
 		issues := []string{"Hello world!"}
-		printAll(p, issues)
+		PrintAll(p, issues)
 
 		if callCount != 1 {
 			t.Errorf("Expected printer to be called once (called %d times)", callCount)
@@ -254,7 +224,7 @@ func TestPrintAll(t *testing.T) {
 		}
 
 		issues := []string{"foo", "bar", "baz"}
-		printAll(p, issues)
+		PrintAll(p, issues)
 
 		if callCount != 3 {
 			t.Errorf("Expected printer to be called thrice (called %d times)", callCount)

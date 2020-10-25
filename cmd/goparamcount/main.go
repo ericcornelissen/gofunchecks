@@ -10,25 +10,15 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"unicode"
+
+	"github.com/ericcornelissen/gofunchecks/internal/utils"
+	"github.com/ericcornelissen/gofunchecks/internal/walk"
 )
 
 type funcdecl struct {
 	name       string
 	paramCount int
 	pos        token.Pos
-}
-
-type options struct {
-	excludePatterns   []string
-	excludeTests      bool
-	paramLimitPrivate int
-	paramLimitPublic  int
-	recursive         bool
-}
-
-type printer interface {
-	Print(msgs ...interface{})
 }
 
 func main() {
@@ -47,7 +37,7 @@ func main() {
 	if err != nil {
 		os.Exit(invalidArgumentExitCode)
 	} else if len(issues) > 0 {
-		printAll(logger, issues)
+		utils.PrintAll(logger, issues)
 
 		if *flagSetExitStatus || *flagSetExitStatusAlias {
 			os.Exit(setExitStatusExitCode)
@@ -57,7 +47,7 @@ func main() {
 
 func run(paths []string, logger *log.Logger) (issues []string, err error) {
 	if !(*flagVerbose || *flagVerboseAlias) {
-		logger = noopLogger
+		logger = utils.NoopLogger
 	}
 
 	if noLimitIsSet(*flagMax, *flagMaxAlias, *flagPrivateMax, *flagPublicMax) {
@@ -66,15 +56,15 @@ func run(paths []string, logger *log.Logger) (issues []string, err error) {
 
 	*flagExcludes += *flagExcludesAlias
 	excludePatterns := strings.Split(*flagExcludes, ",")
-	if err := checkPatterns(excludePatterns); err != nil {
+	if err := utils.CheckPatterns(excludePatterns); err != nil {
 		logger.Printf("invalid pattern(s): %s", err)
 	}
 
 	baseOptions := &options{
 		excludePatterns:   excludePatterns,
 		excludeTests:      !(*flagTests || *flagTestsAlias),
-		paramLimitPrivate: min(*flagMax, *flagMaxAlias, *flagPrivateMax),
-		paramLimitPublic:  min(*flagMax, *flagMaxAlias, *flagPublicMax),
+		paramLimitPrivate: utils.Min(*flagMax, *flagMaxAlias, *flagPrivateMax),
+		paramLimitPublic:  utils.Min(*flagMax, *flagMaxAlias, *flagPublicMax),
 	}
 
 	return runWith(paths, baseOptions, logger)
@@ -91,7 +81,7 @@ func runWith(
 			return []string{}, fmt.Errorf("invalid path %s", path)
 		}
 
-		root, recursive := checkRecursive(absPath)
+		root, recursive := utils.CheckRecursive(absPath)
 		baseOptions.recursive = recursive
 
 		pathIssues := analyzeWith(root, baseOptions, logger)
@@ -106,7 +96,7 @@ func analyzeWith(
 	options *options,
 	logger *log.Logger,
 ) (issues []string) {
-	for _, filePath := range getFiles(path, options) {
+	for _, filePath := range walk.GetFiles(path, options) {
 		logger.Printf("analyzing %s", filePath)
 		fileIssues, err := analyzeFile(filePath, options)
 		if err != nil {
@@ -151,7 +141,7 @@ func checkDecl(d ast.Decl, options *options) *funcdecl {
 	}
 
 	paramLimit := options.paramLimitPrivate
-	if isPublicFunc(decl) {
+	if utils.IsPublicFunc(decl) {
 		paramLimit = options.paramLimitPublic
 	}
 
@@ -165,11 +155,6 @@ func checkDecl(d ast.Decl, options *options) *funcdecl {
 		paramCount: paramCount,
 		pos:        decl.Pos(),
 	}
-}
-
-func isPublicFunc(decl *ast.FuncDecl) bool {
-	name := []rune(decl.Name.String())
-	return unicode.IsUpper(name[0])
 }
 
 func getParamCount(decl *ast.FuncDecl) int {

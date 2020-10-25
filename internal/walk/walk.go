@@ -1,4 +1,4 @@
-package main
+package walk
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func getFiles(root string, options *options) (paths []string) {
+func GetFiles(root string, options Options) (paths []string) {
 	filepath.Walk(root, func(path string, fi os.FileInfo, err error) error {
 		if err != nil {
 			fmt.Printf("Error during filesystem walk: %v\n", err)
@@ -19,10 +19,10 @@ func getFiles(root string, options *options) (paths []string) {
 		}
 
 		if fi.IsDir() {
-			return skipDir(path, options.recursive)
+			return skipDir(path, options.Recursive())
 		}
 
-		if skipFile(path, options.excludeTests, options.excludePatterns) {
+		if skipFile(path, options.ExcludeTests(), options.ExcludePatterns()) {
 			return nil
 		}
 
@@ -55,7 +55,7 @@ func skipFile(
 		return true
 	}
 
-	if excludeByPattern(path, excludePatterns) {
+	if excludedByPattern(path, excludePatterns) {
 		return true
 	}
 
@@ -66,7 +66,7 @@ func skipFile(
 	return false
 }
 
-func excludeByPattern(path string, excludePatterns []string) bool {
+func excludedByPattern(path string, excludePatterns []string) bool {
 	for _, pattern := range excludePatterns {
 		filename := filepath.Base(path)
 		matched, _ := filepath.Match(pattern, filename)

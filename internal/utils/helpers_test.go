@@ -1,4 +1,4 @@
-package main
+package utils
 
 type mockPrinter struct {
 	callCount *uint

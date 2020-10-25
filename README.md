@@ -1,46 +1,24 @@
 [![GitHub Actions][ci-image]][ci-url]
 [![Go Report Card][grc-image]][grc-url]
 
-# goparamcount
+# gofunchecks
 
-Find functions that have too many parameters.
+A collections of static analysis tool to analyze function in Go.
 
-## Motivation
+- [goparamcount](./cmd/goparamcount)
 
-Functions with many parameters can be difficult to understand and the order of
-parameters may be confusing. Also, having many parameters can be an indication
-that the function is doing too many things. And, if you really need a lot of
-data it may be a better idea to wrap it in a `struct` anyway.
+## Quick start
 
-## Installation
+Install the tool(s) you wish to use.
 
 ```shell
-$ go get github.com/ericcornelissen/goparamcount
+# goparamcount: find functions that have too many parameters.
+$ go get github.com/ericcornelissen/gofunchecks/cmd/goparamcount
 ```
 
-## Usage
+And run it on your projects by using the tool name as a command.
 
-For basic usage, run the following command from the root of your project:
-
-```shell
-$ goparamcount ./...
-```
-
-Which will analyze all packages beneath the current directory. If you want to
-change the number of parameters that is allowed you can use the `-max` flag:
-
-```shell
-$ goparamcount -max 3 ./...
-```
-
-You can specify the maximum number of parameters separately for public and
-private functions using the `-public-max` and `-private-max` flags:
-
-```shell
-$ goparamcount -public-max 2 -private-max 4 ./...
-```
-
-[ci-url]: https://github.com/ericcornelissen/goparamcount/actions
-[ci-image]: https://github.com/ericcornelissen/goparamcount/workflows/Test%20and%20Lint/badge.svg
-[grc-url]: https://goreportcard.com/report/github.com/ericcornelissen/goparamcount
-[grc-image]: https://goreportcard.com/badge/github.com/ericcornelissen/goparamcount
+[ci-url]: https://github.com/ericcornelissen/gofunchecks/actions
+[ci-image]: https://github.com/ericcornelissen/gofunchecks/workflows/Test%20and%20Lint/badge.svg
+[grc-url]: https://goreportcard.com/report/github.com/ericcornelissen/gofunchecks
+[grc-image]: https://goreportcard.com/badge/github.com/ericcornelissen/gofunchecks

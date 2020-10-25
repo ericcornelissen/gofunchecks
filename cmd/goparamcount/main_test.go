@@ -1,7 +1,6 @@
 package main
 
 import (
-	"go/ast"
 	"go/parser"
 	"go/token"
 	"testing"
@@ -14,7 +13,7 @@ func TestAnalyzeFile(t *testing.T) {
 			paramLimitPublic:  100,
 		}
 
-		issues, err := analyzeFile("./testdata/src/foo.go", options)
+		issues, err := analyzeFile("../../testdata/src/foo.go", options)
 		if err != nil {
 			t.Fatalf("Unexpected error: %s", err)
 		}
@@ -30,7 +29,7 @@ func TestAnalyzeFile(t *testing.T) {
 			paramLimitPublic:  0,
 		}
 
-		issues, err := analyzeFile("./testdata/src/foo.go", options)
+		issues, err := analyzeFile("../../testdata/src/foo.go", options)
 		if err != nil {
 			t.Fatalf("Unexpected error: %s", err)
 		}
@@ -211,39 +210,6 @@ func TestCheckForParamLimit(t *testing.T) {
 		issues := checkForParamLimit(file, options)
 		if len(issues) != 2 {
 			t.Errorf("Expected one issue (got %d)", len(issues))
-		}
-	})
-}
-
-func TestIsPublicFunc(t *testing.T) {
-	t.Run("private function", func(t *testing.T) {
-		decl := &ast.FuncDecl{
-			Name: ast.NewIdent("localFunction"),
-		}
-
-		result := isPublicFunc(decl)
-		if result == true {
-			t.Error("The function declaration is not public")
-		}
-	})
-	t.Run("public function", func(t *testing.T) {
-		decl := &ast.FuncDecl{
-			Name: ast.NewIdent("PublicFunction"),
-		}
-
-		result := isPublicFunc(decl)
-		if result == false {
-			t.Error("The function declaration is public")
-		}
-	})
-	t.Run("unconventional function name", func(t *testing.T) {
-		decl := &ast.FuncDecl{
-			Name: ast.NewIdent("_localFunction"),
-		}
-
-		result := isPublicFunc(decl)
-		if result == true {
-			t.Error("The function declaration is not public")
 		}
 	})
 }
