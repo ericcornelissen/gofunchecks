@@ -7,6 +7,8 @@ import (
 	"strings"
 )
 
+// GetFiles returns all ".go" files under the `root` directory in accordance
+// with the given `options`.
 func GetFiles(root string, options Options) (paths []string) {
 	filepath.Walk(root, func(path string, fi os.FileInfo, err error) error {
 		if err != nil {
