@@ -6,6 +6,7 @@
 A collections of static analysis tool to analyze function in Go.
 
 - [goparamcount](./cmd/goparamcount)
+- [goreturncount](./cmd/goreturncount)
 
 ## Quick start
 
@@ -14,6 +15,9 @@ Install the tool(s) you wish to use.
 ```shell
 # goparamcount: find functions that have too many parameters.
 $ go get github.com/ericcornelissen/gofunchecks/cmd/goparamcount
+
+# goreturncount: find functions that have too many return values.
+$ go get github.com/ericcornelissen/gofunchecks/cmd/goreturncount
 ```
 
 And run it on your projects by using the tool name as a command.

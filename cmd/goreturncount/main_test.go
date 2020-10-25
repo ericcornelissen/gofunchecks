@@ -9,11 +9,11 @@ import (
 func TestAnalyzeFile(t *testing.T) {
 	t.Run("without issues", func(t *testing.T) {
 		options := &options{
-			paramLimitPrivate: 100,
-			paramLimitPublic:  100,
+			returnLimitPrivate: 100,
+			returnLimitPublic:  100,
 		}
 
-		issues, err := analyzeFile("../../testdata/src/param.go", options)
+		issues, err := analyzeFile("../../testdata/src/return.go", options)
 		if err != nil {
 			t.Fatalf("Unexpected error: %s", err)
 		}
@@ -25,11 +25,11 @@ func TestAnalyzeFile(t *testing.T) {
 	})
 	t.Run("with issues", func(t *testing.T) {
 		options := &options{
-			paramLimitPrivate: 0,
-			paramLimitPublic:  0,
+			returnLimitPrivate: 0,
+			returnLimitPublic:  0,
 		}
 
-		issues, err := analyzeFile("../../testdata/src/param.go", options)
+		issues, err := analyzeFile("../../testdata/src/return.go", options)
 		if err != nil {
 			t.Fatalf("Unexpected error: %s", err)
 		}
@@ -49,11 +49,11 @@ func TestAnalyzeFile(t *testing.T) {
 	})
 }
 
-func TestCheckForParamLimit(t *testing.T) {
-	t.Run("no issues", func(t *testing.T) {
+func TestCheckForReturnLimit(t *testing.T) {
+	t.Run("no issues, below limit", func(t *testing.T) {
 		options := &options{
-			paramLimitPrivate: 2,
-			paramLimitPublic:  2,
+			returnLimitPrivate: 2,
+			returnLimitPublic:  2,
 		}
 
 		src := `
@@ -70,22 +70,22 @@ func TestCheckForParamLimit(t *testing.T) {
 			t.Fatal("Test file could not be parsed")
 		}
 
-		issues := checkForParamLimit(file, options)
+		issues := checkForReturnLimit(file, options)
 		if len(issues) != 0 {
 			t.Errorf("Expected zero issues (got %d)", len(issues))
 		}
 	})
-	t.Run("no issues with variadic function", func(t *testing.T) {
+	t.Run("no issues, at limit", func(t *testing.T) {
 		options := &options{
-			paramLimitPrivate: 1,
-			paramLimitPublic:  1,
+			returnLimitPrivate: 1,
+			returnLimitPublic:  1,
 		}
 
 		src := `
 			package foo
 
-			func localFunction(a ...int) int {
-				return a + b + c
+			func localFunction(a, b int) int {
+				return a + b
 			}
 		`
 
@@ -95,22 +95,22 @@ func TestCheckForParamLimit(t *testing.T) {
 			t.Fatal("Test file could not be parsed")
 		}
 
-		issues := checkForParamLimit(file, options)
+		issues := checkForReturnLimit(file, options)
 		if len(issues) != 0 {
 			t.Errorf("Expected zero issue (got %d)", len(issues))
 		}
 	})
-	t.Run("too many distinct parameters", func(t *testing.T) {
+	t.Run("too many distinct return values", func(t *testing.T) {
 		options := &options{
-			paramLimitPrivate: 1,
-			paramLimitPublic:  1,
+			returnLimitPrivate: 1,
+			returnLimitPublic:  1,
 		}
 
 		src := `
 			package foo
 
-			func localFunction(a int, b string) int {
-				return a + len(b)
+			func localFunction(a int, b string) (int, string) {
+				return a + len(b), b
 			}
 		`
 
@@ -120,22 +120,22 @@ func TestCheckForParamLimit(t *testing.T) {
 			t.Fatal("Test file could not be parsed")
 		}
 
-		issues := checkForParamLimit(file, options)
+		issues := checkForReturnLimit(file, options)
 		if len(issues) != 1 {
 			t.Errorf("Expected one issue (got %d)", len(issues))
 		}
 	})
-	t.Run("too many parameters of one type", func(t *testing.T) {
+	t.Run("too many distinct named return values", func(t *testing.T) {
 		options := &options{
-			paramLimitPrivate: 1,
-			paramLimitPublic:  1,
+			returnLimitPrivate: 1,
+			returnLimitPublic:  1,
 		}
 
 		src := `
 			package foo
 
-			func localFunction(a, b, c int) int {
-				return a + b + c
+			func localFunction(a int, b string) (c int, d string) {
+				return a + len(b), b
 			}
 		`
 
@@ -145,22 +145,22 @@ func TestCheckForParamLimit(t *testing.T) {
 			t.Fatal("Test file could not be parsed")
 		}
 
-		issues := checkForParamLimit(file, options)
+		issues := checkForReturnLimit(file, options)
 		if len(issues) != 1 {
 			t.Errorf("Expected one issue (got %d)", len(issues))
 		}
 	})
-	t.Run("variadic function with too many parameters", func(t *testing.T) {
+	t.Run("too many return values of one type", func(t *testing.T) {
 		options := &options{
-			paramLimitPrivate: 1,
-			paramLimitPublic:  1,
+			returnLimitPrivate: 1,
+			returnLimitPublic:  1,
 		}
 
 		src := `
 			package foo
 
-			func localFunction(a int, b ...int) int {
-				return a + b + c
+			func localFunction(a, b, c int) (int, int) {
+				return a, c
 			}
 		`
 
@@ -170,15 +170,65 @@ func TestCheckForParamLimit(t *testing.T) {
 			t.Fatal("Test file could not be parsed")
 		}
 
-		issues := checkForParamLimit(file, options)
+		issues := checkForReturnLimit(file, options)
+		if len(issues) != 1 {
+			t.Errorf("Expected one issue (got %d)", len(issues))
+		}
+	})
+	t.Run("too many named return values of one type", func(t *testing.T) {
+		options := &options{
+			returnLimitPrivate: 1,
+			returnLimitPublic:  1,
+		}
+
+		src := `
+			package foo
+
+			func localFunction(a, b, c int) (d int, f int) {
+				return a, c
+			}
+		`
+
+		fileSet := token.NewFileSet()
+		file, err := parser.ParseFile(fileSet, "", src, 0)
+		if err != nil {
+			t.Fatal("Test file could not be parsed")
+		}
+
+		issues := checkForReturnLimit(file, options)
+		if len(issues) != 1 {
+			t.Errorf("Expected one issue (got %d)", len(issues))
+		}
+	})
+	t.Run("too many return values with shared type", func(t *testing.T) {
+		options := &options{
+			returnLimitPrivate: 1,
+			returnLimitPublic:  1,
+		}
+
+		src := `
+			package foo
+
+			func localFunction(a int) (a, b int) {
+				return a + 1, a + 2
+			}
+		`
+
+		fileSet := token.NewFileSet()
+		file, err := parser.ParseFile(fileSet, "", src, 0)
+		if err != nil {
+			t.Fatal("Test file could not be parsed")
+		}
+
+		issues := checkForReturnLimit(file, options)
 		if len(issues) != 1 {
 			t.Errorf("Expected one issue (got %d)", len(issues))
 		}
 	})
 	t.Run("separate limit for public and private functions", func(t *testing.T) {
 		options := &options{
-			paramLimitPrivate: 2,
-			paramLimitPublic:  1,
+			returnLimitPrivate: 2,
+			returnLimitPublic:  1,
 		}
 
 		src := `
@@ -188,16 +238,16 @@ func TestCheckForParamLimit(t *testing.T) {
 				return a + int(b)
 			}
 
-			func localFunctionBar(a int, b uint, c string) bool {
-				return len(c) > localFunctionFoo(a, b)
+			func localFunctionBar(a int) (bool, int, string) {
+				return a > 3, a + 2, str(a)
 			}
 
 			func PublicFunctionFoo(a int) int {
 				return a + 1
 			}
 
-			func PublicFunctionBar(a int, b string) bool {
-				return len(b) > a
+			func PublicFunctionBar(a int, b string) (bool, string) {
+				return len(b) > a, b
 			}
 		`
 
@@ -207,7 +257,7 @@ func TestCheckForParamLimit(t *testing.T) {
 			t.Fatal("Test file could not be parsed")
 		}
 
-		issues := checkForParamLimit(file, options)
+		issues := checkForReturnLimit(file, options)
 		if len(issues) != 2 {
 			t.Errorf("Expected two issues (got %d)", len(issues))
 		}
