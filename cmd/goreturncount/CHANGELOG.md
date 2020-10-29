@@ -7,7 +7,8 @@ Versioning].
 
 ## [Unreleased]
 
-- _No changes yet_
+- Add `-legal` flag.
+- Add `-version` flag.
 
 ## [1.0.0] - 2020-10-25
 

@@ -18,6 +18,12 @@ var (
 		"(alias of -excludes)",
 	)
 
+	flagLegal = flag.Bool(
+		"legal",
+		false,
+		"Show legal information about the program and exit",
+	)
+
 	flagMax = flag.Int(
 		"max",
 		math.MaxInt32,
@@ -71,6 +77,12 @@ var (
 		"v",
 		false,
 		"(alias of -verbose)",
+	)
+
+	flagVersion = flag.Bool(
+		"version",
+		false,
+		"Show the program version and exit",
 	)
 )
 

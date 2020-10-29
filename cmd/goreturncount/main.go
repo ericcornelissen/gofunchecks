@@ -31,6 +31,16 @@ func main() {
 	flag.Usage = func() { printUsage(logger) }
 	flag.Parse()
 
+	if *flagLegal {
+		printLegal(logger)
+		os.Exit(0)
+	}
+
+	if *flagVersion {
+		printVersion(logger)
+		os.Exit(0)
+	}
+
 	args := flag.Args()
 	if len(args) == 0 {
 		printUsage(logger)

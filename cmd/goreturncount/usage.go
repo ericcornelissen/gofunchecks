@@ -21,6 +21,8 @@ Flags:
   -S, -set_exit_status  Set exit status to %d if any issues are found.
   -t, -tests            Include test files in analysis.
   -v, -verbose          Enable debug logging.
+      -legal            Show legal information about the program and exit.
+      -version          Show the program version and exit.
 
 Examples:
 
