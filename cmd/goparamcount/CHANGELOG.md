@@ -7,7 +7,7 @@ Versioning].
 
 ## [Unreleased]
 
-- _No changes yet_
+- Fix message in case function has one parameter.
 
 ## [1.0.0] - 2020-10-06
 

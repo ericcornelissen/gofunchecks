@@ -40,7 +40,7 @@ func TestConstructMessage(t *testing.T) {
 		t.Error("Expected message to contain the function name")
 	}
 
-	if !strings.Contains(result, fmt.Sprintf("%d parameters", funcParamCount)) {
+	if !strings.Contains(result, fmt.Sprintf("%d parameter(s)", funcParamCount)) {
 		t.Error("Expected message to contain the actual parameter count")
 	}
 }
