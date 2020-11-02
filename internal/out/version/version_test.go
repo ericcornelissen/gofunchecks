@@ -1,4 +1,4 @@
-package main
+package version
 
 import (
 	"testing"
@@ -6,7 +6,7 @@ import (
 	"github.com/ericcornelissen/gofunchecks/internal/utils"
 )
 
-func TestPrintLegal(t *testing.T) {
+func TestPrintVersion(t *testing.T) {
 	p := utils.NoopLogger
-	printLegal(p)
+	Print(p, "v3.1.4")
 }

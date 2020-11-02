@@ -1,4 +1,4 @@
-package main
+package legal
 
 import (
 	"testing"
@@ -8,5 +8,5 @@ import (
 
 func TestPrintLegal(t *testing.T) {
 	p := utils.NoopLogger
-	printLegal(p)
+	Print(p)
 }

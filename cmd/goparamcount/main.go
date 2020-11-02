@@ -11,6 +11,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/ericcornelissen/gofunchecks/internal/out/legal"
+	"github.com/ericcornelissen/gofunchecks/internal/out/version"
 	"github.com/ericcornelissen/gofunchecks/internal/utils"
 	"github.com/ericcornelissen/gofunchecks/internal/walk"
 )
@@ -28,12 +30,12 @@ func main() {
 	flag.Parse()
 
 	if *flagLegal {
-		printLegal(logger)
+		legal.Print(logger)
 		os.Exit(0)
 	}
 
 	if *flagVersion {
-		printVersion(logger)
+		version.Print(logger, programVersion)
 		os.Exit(0)
 	}
 
