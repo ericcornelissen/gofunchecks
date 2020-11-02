@@ -7,6 +7,12 @@ Versioning].
 
 ## [Unreleased]
 
+- _no changes yet_
+
+## [1.0.1] - 2020-11-02
+
+- Add `-legal` flag.
+- Add `-version` flag.
 - Fix message in case function has one parameter.
 
 ## [1.0.0] - 2020-10-06
