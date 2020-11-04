@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+All notable changes to *goreturncount* will be documented in this file.
 
 The format is based on [Keep a Changelog], and this project adheres to [Semantic
 Versioning].
@@ -8,6 +8,10 @@ Versioning].
 ## [Unreleased]
 
 - _no changes yet_
+
+## [1.0.2] - 2020-11-04
+
+- Fix recursive analysis on Windows.
 
 ## [1.0.1] - 2020-11-02
 

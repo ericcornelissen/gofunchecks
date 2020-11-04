@@ -88,13 +88,13 @@ func runWith(
 	logger *log.Logger,
 ) (issues []string, err error) {
 	for _, path := range paths {
-		absPath, err := filepath.Abs(path)
+		adjustedPath, recursive := utils.CheckRecursive(path)
+		baseOptions.recursive = recursive
+
+		root, err := filepath.Abs(adjustedPath)
 		if err != nil {
 			return []string{}, fmt.Errorf("invalid path %s", path)
 		}
-
-		root, recursive := utils.CheckRecursive(absPath)
-		baseOptions.recursive = recursive
 
 		pathIssues := analyzeWith(root, baseOptions, logger)
 		issues = append(issues, pathIssues...)
