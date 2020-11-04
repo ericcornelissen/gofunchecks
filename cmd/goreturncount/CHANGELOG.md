@@ -7,7 +7,7 @@ Versioning].
 
 ## [Unreleased]
 
-- _no changes yet_
+- Fix recursive analysis on Windows.
 
 ## [1.0.1] - 2020-11-02
 
